@@ -1,0 +1,1 @@
+pyinstaller quotidienne.spec --name quotidienne --onefile  --icon=helmet.ico 
