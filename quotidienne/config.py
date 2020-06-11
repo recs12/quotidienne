@@ -5,15 +5,15 @@ from prompt_toolkit import prompt
 user_profile = os.environ.get("USERPROFILE")
 
 users = [
-    "Patrick Albert <RECS@premiertech.com>": "RECS",
-    'Pinocchio' <@premiertech.com>": "",
-    'Mary Poppins' <@premiertech.com>": "",
-    'Masinissa' <@premiertech.com>": "",
-    'King Julien' <@premiertech.com>": "",
-    'Marie Curie' <@premiertech.com>": "",
+    "Slimane Rechdi <recs@premiertech.com>",
+    "Pinocchio <pino@premiertech.com>",
+    "Mary Poppins <POPM@premiertech.com>",
+    "Massinissa <MASS@premiertech.com>",
+    "King Julien <KINJ@premiertech.com>",
+    "Marie Curie <CURM@premiertech.com>",
 ]
 
-config_location = os.path.join(user_profile, r"quotidienne\myteam.yaml")
+config_location = os.path.join(user_profile, r".quotidienne\myteam.yaml")
 
 def config_file_exists(config):
     if os.path.exists(config):

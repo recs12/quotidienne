@@ -14,7 +14,7 @@ import seaborn as sns
 from pandas.tseries.offsets import DateOffset
 from yaspin import yaspin
 
-from quotidienne import team
+from quotidienne.config import check_config, config_location
 from quotidienne.spinner import sp
 
 
@@ -246,8 +246,12 @@ def dms(acronym):
 
 def main():
     try:
-        print("Please wait...")
+        list_member = check_config(config_location)
+        print(list_member)
+        print("Would you like to continue? [Y/y]es:")
+        import pdb; pdb.set_trace()
 
+        print("Please wait...")
         sprint = [csv for csv in glob.glob("*.{}".format("csv"))]
         sprintDFs = [csv_parser(day) for day in sprint]
         azure = pd.concat(sprintDFs, sort=True)
@@ -322,7 +326,6 @@ def main():
 
     finally:
         print("Press any key to exit...")
-        sys.exit()
 
 
 if __name__ == "__main__":

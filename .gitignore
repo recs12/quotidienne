@@ -1,7 +1,6 @@
 *.log
 *.pyc
 *.csv
-team.py
 .cache/
 .coverage
 .idea/
