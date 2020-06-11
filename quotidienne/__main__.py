@@ -2,7 +2,8 @@
 # coding: utf-8
 
 import glob
-import os
+import os, sys
+from logzero import logger
 
 import matplotlib as mpl
 mpl.rc("figure", max_open_warning=0)
@@ -11,28 +12,20 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from pandas.tseries.offsets import DateOffset
+from yaspin import yaspin
+
+from quotidienne import team
+from quotidienne.spinner import sp
 
 
-team = {
-    "André Albert <ALBA@premiertech.com>": "ALBA",
-    "Camille Bourgeois <bouc11@premiertech.com>": "BOUC11",
-    "Catherine Lapointe <lapc3@premiertech.com>": "LAPC3",
-    "Daniel Pelletier <peld6@premiertech.com>": "PELD6",
-    "Jean-Philippe Fournier <fouj3@premiertech.com>": "FOUJ3",
-    "Karl Côté - COTK2 <COTK2@premiertech.com>": "COTK2",
-    "Karla Nunez <nunk@premiertech.com>": "NUNK",
-    "Maurice Beaulieu <BEAM@premiertech.com>": "BEAM",
-    "Michaël Bouchard <BOUM3@premiertech.com>": "BOUM3",
-    "Michaël Morin - MORM8 <morm8@premiertech.com>": "MORM8",
-    "Noubir Benali <benn2@premiertech.com>": "BENN2",
-    "Slimane Rechdi <recs@premiertech.com>": "RECS",
-    "Stessy Gillet <gils2@premiertech.com>": "GILS2",
-    "Patrick Albert <ALBP@premiertech.com>": "ALBP",
-    # "Sébastien Tremblay <TRES2@premiertech.com>": "TRES2",
-}
-
-
-sprint = [csv for csv in glob.glob("*.{}".format("csv"))]
+def prompt_confirmation():
+    "ask user to resume the program"
+    answer = input("Proceed ([y]/n) ?:  ")
+    if answer.lower() in ["yes", "y"]:
+        pass
+    else:
+        print("Process has stopped.")
+        sys.exit()
 
 
 def csv_parser(file_name, parse_dates=True):
@@ -53,74 +46,6 @@ def csv_parser(file_name, parse_dates=True):
     df = df.fillna(0)
     df["date"] = file_name.split(".")[0]
     return df
-
-
-sprintDFs = [csv_parser(day) for day in sprint]
-azure = pd.concat(sprintDFs, sort=True)
-azure = azure.sort_values(["id", "date"], ascending=[True, True])
-
-# Sélectionner les tâches qui n'ont qu'une seule entrée (elles peuvent causer des progress erronés)
-single_ids = azure["id"].value_counts().reset_index()
-single_ids.columns = ["ids", "count"]
-single_ids = single_ids.loc[single_ids["count"] == 1]
-single_ids = single_ids["ids"].tolist()
-azure_single_ids = azure[azure["id"].isin(single_ids)]
-azure_single_ids = azure_single_ids[(azure_single_ids.completed > 0)]
-azure_single_ids = azure_single_ids.sort_values(["date", "id"])
-# azure_single_ids = azure_single_ids[azure_single_ids.date > '2020-03-31']
-
-azure["progress"] = azure.groupby("id")["completed"].diff()
-azure.progress = azure.progress.fillna(azure.completed)
-azure.date = pd.to_datetime(azure.date)
-azure = azure.set_index(["date", "assigned", "id"])
-azure["year"] = azure.index.get_level_values(0).year
-azure["Jour"] = azure.index.get_level_values(0).dayofweek
-azure["Jour"] = azure["Jour"].replace(
-    [0, 1, 2, 3, 4, 5, 6],
-    ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
-)
-azure["week"] = azure.index.get_level_values(0).week
-azure["date_azure"] = azure.index.get_level_values(0) + DateOffset(days=-3)
-azure.date_azure = pd.to_datetime(azure.date_azure)
-azure["week_azure"] = azure.date_azure.dt.week
-azure["task"] = azure["tags"].astype(str) + "_" + azure["title"].astype(str)
-# azure.to_csv( "azure.csv", index=False, encoding='utf-8-sig')
-
-
-# Impression des données avec une seule entrée dans le fichier
-azure_single_ids
-
-
-# Order the columns here.
-azure = azure[
-    [
-        "year",
-        "week",
-        "week_azure",
-        "Jour",
-        "date_azure",
-        "tags",
-        "title",
-        "state",
-        "estimate",
-        "completed",
-        "remaining",
-        "task",
-        "progress",
-    ]
-]
-
-
-azure
-
-
-# Get the last week of the total dataset
-lastDay = azure.date_azure.max()
-secondLastDay = azure.date_azure.drop_duplicates().nlargest(2).iloc[-1]
-lastWeek = azure.week_azure.max()
-lastYear = azure.index.get_level_values(0).year.max()
-azureLastWeek = azure[(azure.week_azure == lastWeek) & (azure.year == lastYear)]
-azureGroupedbyTeamMember = azureLastWeek.groupby(level="assigned")
 
 
 def graph_member_ids(az, acronym):
@@ -319,9 +244,87 @@ def dms(acronym):
     graph_week_productivity(progressWeekly, acronym)
 
 
+def main():
+    try:
+        print("Please wait...")
+
+        sprint = [csv for csv in glob.glob("*.{}".format("csv"))]
+        sprintDFs = [csv_parser(day) for day in sprint]
+        azure = pd.concat(sprintDFs, sort=True)
+        azure = azure.sort_values(["id", "date"], ascending=[True, True])
+
+        # Sélectionner les tâches qui n'ont qu'une seule entrée (elles peuvent causer des progress erronés)
+        single_ids = azure["id"].value_counts().reset_index()
+        single_ids.columns = ["ids", "count"]
+        single_ids = single_ids.loc[single_ids["count"] == 1]
+        single_ids = single_ids["ids"].tolist()
+        azure_single_ids = azure[azure["id"].isin(single_ids)]
+        azure_single_ids = azure_single_ids[(azure_single_ids.completed > 0)]
+        azure_single_ids = azure_single_ids.sort_values(["date", "id"])
+
+        # azure_single_ids = azure_single_ids[azure_single_ids.date > '2020-03-31']
+        azure["progress"] = azure.groupby("id")["completed"].diff()
+        azure.progress = azure.progress.fillna(azure.completed)
+        azure.date = pd.to_datetime(azure.date)
+        azure = azure.set_index(["date", "assigned", "id"])
+        azure["year"] = azure.index.get_level_values(0).year
+        azure["Jour"] = azure.index.get_level_values(0).dayofweek
+        azure["Jour"] = azure["Jour"].replace(
+            [0, 1, 2, 3, 4, 5, 6],
+            ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
+        )
+        azure["week"] = azure.index.get_level_values(0).week
+        azure["date_azure"] = azure.index.get_level_values(0) + DateOffset(days=-3)
+        azure.date_azure = pd.to_datetime(azure.date_azure)
+        azure["week_azure"] = azure.date_azure.dt.week
+        azure["task"] = azure["tags"].astype(str) + "_" + azure["title"].astype(str)
+
+        # Impression des données avec une seule entrée dans le fichier
+        azure_single_ids
+
+        # Order the columns here.
+        azure = azure[
+            [
+                "year",
+                "week",
+                "week_azure",
+                "Jour",
+                "date_azure",
+                "tags",
+                "title",
+                "state",
+                "estimate",
+                "completed",
+                "remaining",
+                "task",
+                "progress",
+            ]
+        ]
+
+        # Get the last week of the total dataset
+        lastDay = azure.date_azure.max()
+        secondLastDay = azure.date_azure.drop_duplicates().nlargest(2).iloc[-1]
+        lastWeek = azure.week_azure.max()
+        lastYear = azure.index.get_level_values(0).year.max()
+        azureLastWeek = azure[(azure.week_azure == lastWeek) & (azure.year == lastYear)]
+        azureGroupedbyTeamMember = azureLastWeek.groupby(level="assigned")
+
+    except Exception as e:
+        pass
+
+    else:
+        os.makedirs('equipe', exist_ok=True)
+        with yaspin(sp, side="right", text="Creating reports..."):
+            for _name in team.values():
+                dms(_name)
+                logger.debug(f"{_name}: graphs created.")
+        print("Process successfully completed.")
+
+    finally:
+        print("Press any key to exit...")
+        sys.exit()
+
+
 if __name__ == "__main__":
-    print("Process running, please wait...")
-    os.makedirs('equipe', exist_ok=True)
-    for _name in team.values():
-        dms(_name)
-    print("Process successfully completed.")
+    main()
+
