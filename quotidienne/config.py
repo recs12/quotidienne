@@ -1,5 +1,7 @@
+import os
+import sys
+
 import yaml
-import os, sys
 from prompt_toolkit import prompt
 
 user_profile = os.environ.get("USERPROFILE")
@@ -7,13 +9,14 @@ user_profile = os.environ.get("USERPROFILE")
 users = [
     "Slimane Rechdi <recs@premiertech.com>",
     "Pinocchio <pino@premiertech.com>",
-    "Mary Poppins <POPM@premiertech.com>",
-    "Massinissa <MASS@premiertech.com>",
-    "King Julien <KINJ@premiertech.com>",
-    "Marie Curie <CURM@premiertech.com>",
+    "Mary Poppins <popm@premiertech.com>",
+    "Massinissa <mass@premiertech.com>",
+    "King Julien <kinj@premiertech.com>",
+    "Marie Curie <curm@premiertech.com>",
 ]
 
 config_location = os.path.join(user_profile, r".quotidienne\myteam.yaml")
+
 
 def config_file_exists(config):
     if os.path.exists(config):
@@ -21,22 +24,31 @@ def config_file_exists(config):
     else:
         return False
 
+
 def read_config(config):
-    with open(config) as f:
-        team = yaml.load(f, Loader=yaml.FullLoader)
-        return team
+    with open(config, "r", encoding="utf-8") as f:
+        yaml_content = yaml.load(f, Loader=yaml.FullLoader)
+        if not yaml_content:
+            raise ValueError
+        else:
+            return yaml_content
+
 
 def create_config_file(config):
     os.makedirs(os.path.dirname(config_location), exist_ok=True)
-    with open(config , 'w') as f:
+    with open(config, "w") as f:
         data = yaml.dump(users, f)
 
+
 def prompt_create_config_file():
-    answer =  prompt("Would you like to create a config file for your team? press [y\Y]es to continue: ")
-    if answer.lower() in ['y','yes','ye']:
+    answer = prompt(
+        "Would you like to create a config file for your team? press [y\Y]es to continue: "
+    )
+    if answer.lower() in ["y", "yes", "ye"]:
         return True
     else:
         return False
+
 
 def check_config(_path):
     if not config_file_exists(_path):
@@ -47,6 +59,4 @@ def check_config(_path):
         else:
             sys.exit()
     else:
-        teammembers = read_config(_path)
-        return teammembers
-
+        return read_config(_path)

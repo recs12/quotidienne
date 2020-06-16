@@ -1,5 +1,5 @@
 import sys
-from types import MappingProxyType, DynamicClassAttribute
+from types import DynamicClassAttribute, MappingProxyType
 
 # try _collections first to reduce startup cost
 try:
