@@ -1,15 +1,13 @@
 #!/usr/bin/env python
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 import os
 import sys
+import warnings
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+warnings.filterwarnings("ignore", category=mpl.cbook.MatplotlibDeprecationWarning)
 from logzero import logger
-from prompt_toolkit import prompt
 from yaspin import yaspin
 
 from quotidienne.acronyms import mapping_with_acronyms
@@ -28,7 +26,7 @@ def display(team):
 
 
 def prompt_confirmation():
-    answer = prompt("Proceed ([y]/n) ?:  ")
+    answer = input("Proceed ([y]/n) ?:  ")
     if answer.lower() in ["yes", "y"]:
         pass
     else:
@@ -36,11 +34,12 @@ def prompt_confirmation():
 
 
 def prompt_confirmation():
-    answer = prompt("\nWould you like to process with this team? [Y/y]es:  ")
+    answer = input("\nWould you like to process with this team? [Y/y]es:  ")
     if answer.lower() in ["yes", "y"]:
         pass
     else:
         print("Process has stopped.")
+        sys.exit()
 
 
 def main():
@@ -62,22 +61,19 @@ def main():
             for _name in team.values():
                 dms(_name, azure, azureGroupedbyTeamMember, lastDay, secondLastDay)
                 SP.write(f"> {_name}: graphs created.")
-        print("Process completed.")
+        print("\nProcess completed.")
 
     except FileNotFoundError:
-        logger.error("No files found")
-
-    except ValueError:
-        logger.error("No users listed in yaml file")
+        logger.error("No files csv found")
 
     except Exception as e:
-        logger.error(e)
+        logger.error(e.args)
 
     else:
         pass
 
     finally:
-        prompt("\nPress any key to exit...")
+        input("\nPress any key to exit...")
         sys.exit()
 
 

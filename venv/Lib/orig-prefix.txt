@@ -1,1 +1,1 @@
-C:\ProgramData\Miniconda3
+C:\Python\Python37

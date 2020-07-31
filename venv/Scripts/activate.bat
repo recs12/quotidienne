@@ -1,6 +1,6 @@
 @echo off
 
-set "VIRTUAL_ENV=C:\Users\Slimane\Desktop\quotidienne\quotidienne\venv"
+set "VIRTUAL_ENV=C:\Users\recs\Documents\PT_Documents\scripts\quotidienne\venv"
 
 if defined _OLD_VIRTUAL_PROMPT (
     set "PROMPT=%_OLD_VIRTUAL_PROMPT%"

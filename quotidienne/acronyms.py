@@ -15,8 +15,6 @@ def get_acronym(email):
 
 
 def mapping_with_acronyms(team):
-    if len(team) != 0:
-        acros = [get_acronym(id) for id in team]
-        return dict(zip(team, acros))
-    else:
-        raise ValueError
+    acros = [get_acronym(id) for id in team]
+    return dict(zip(team, acros))
+

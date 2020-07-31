@@ -1,7 +1,6 @@
 import glob
 
 import pandas as pd
-from logzero import logger
 from pandas.tseries.offsets import DateOffset
 
 
@@ -27,7 +26,7 @@ def csv_parser(file_name, team, parse_dates=True):
 
 def get_azure_dataset(team):
     sprint = [csv for csv in glob.glob("*.{}".format("csv"))]
-    if not sprint:
+    if sprint == []:
         raise FileNotFoundError
     sprintDFs = [csv_parser(day, team) for day in sprint]
     azure = pd.concat(sprintDFs, sort=True)

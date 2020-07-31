@@ -1,10 +1,7 @@
-import datetime as dt
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from yaspin import yaspin
 
 
 def graph_member_ids(az, azure, acronym):
@@ -189,7 +186,7 @@ def dms(acronym, azure, azureGroupedbyTeamMember, lastDay, secondLastDay):
     lastDayReport = lastDayReport[
         ~(lastDayReport["remaining"] == 0) | ~(lastDayReport["progress"] == 0)
     ]
-    if lastDayReport.empty == False:
+    if not lastDayReport.empty:
         graph_member_ids(lastDayReport, azure, acronym)
 
     # Weekly productivity
