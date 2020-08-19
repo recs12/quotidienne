@@ -15,20 +15,23 @@ a = Analysis(['quotidienne\\__main__.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
-pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
+pyz = PYZ(
+    a.pure,
+    a.zipped_data,
+    cipher=block_cipher
+)
 exe = EXE(pyz,
           a.scripts,
           a.binaries,
           a.zipfiles,
           a.datas,
           [],
-          name='quotidienne_0-0-2',
+          name='quotidienne_0-0-3',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=True ,
+          console=True,
           icon='helmet.ico',
           )

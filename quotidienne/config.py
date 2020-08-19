@@ -5,12 +5,12 @@ import pandas as pd
 user_profile = os.environ.get("USERPROFILE")
 
 users = [
-    "Slimane Rechdi <recs@premiertech.com>",
     "Pinocchio <pino@premiertech.com>",
     "Mary Poppins <popm@premiertech.com>",
     "Massinissa <mass@premiertech.com>",
     "King Julien <kinj@premiertech.com>",
     "Marie Curie <curm@premiertech.com>",
+    "Slimane Rechdi <recs@premiertech.com>",
 ]
 
 config_location = os.path.join(user_profile, r".quotidienne\myteam.csv")
