@@ -8,7 +8,7 @@ with open('quotidienne/__init__.py', 'r') as f:
             version = line.strip().split('=')[1].strip(' \'"')
             break
     else:
-        version = '0.0.1'
+        version = '0.0.2'
 
 with open('README.rst', 'r', encoding='utf-8') as f:
     readme = f.read()

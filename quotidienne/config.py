@@ -1,7 +1,6 @@
 import os
 import sys
-
-import yaml
+import pandas as pd
 
 user_profile = os.environ.get("USERPROFILE")
 
@@ -14,27 +13,27 @@ users = [
     "Marie Curie <curm@premiertech.com>",
 ]
 
-config_location = os.path.join(user_profile, r".quotidienne\myteam.yaml")
+config_location = os.path.join(user_profile, r".quotidienne\myteam.csv")
 
 
 def config_file_exists(config):
     if os.path.exists(config):
         return True
-    else:
-        return False
+    return False
 
 
 def read_config(config):
-    with open(config, "r", encoding="utf-8") as f:
-        yaml_content = yaml.load(f, Loader=yaml.FullLoader)
-        print(yaml_content)
-        return yaml_content
+    """read the csv file in the .quotidenne folder
+    and return a list of teammembers.
+    """
+    df = pd.read_csv(config, header=None)
+    return df[0].tolist()
 
 
 def create_config_file(config):
     os.makedirs(os.path.dirname(config_location), exist_ok=True)
-    with open(config, "w") as f:
-        yaml.dump(users, f)
+    team = pd.DataFrame(users)
+    team.to_csv(config, header=False, index=False)
 
 
 def prompt_create_config_file():

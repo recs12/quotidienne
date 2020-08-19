@@ -8,6 +8,7 @@ import warnings
 import matplotlib as mpl
 warnings.filterwarnings("ignore", category=mpl.cbook.MatplotlibDeprecationWarning)
 from logzero import logger
+# TODO: set a logging level
 from yaspin import yaspin
 
 from quotidienne.acronyms import mapping_with_acronyms
@@ -18,6 +19,8 @@ from quotidienne.spinner import sp
 
 mpl.rc("figure", max_open_warning=0)
 
+
+__VERSION__ = "0.0.2"
 
 def display(team):
     print("\n")
@@ -48,6 +51,7 @@ def main():
         display(team_listing_from_config)
         team = mapping_with_acronyms(team_listing_from_config)
         prompt_confirmation()
+
         azure = get_azure_dataset(team)
         # Get the last week of the total dataset
         lastDay = azure.date_azure.max()
@@ -55,12 +59,15 @@ def main():
         lastWeek = azure.week_azure.max()
         lastYear = azure.index.get_level_values(0).year.max()
         azureLastWeek = azure[(azure.week_azure == lastWeek) & (azure.year == lastYear)]
+        azureLastWeekIds = azureLastWeek.index.get_level_values("assigned").unique().tolist() # list of ids in the last week
         azureGroupedbyTeamMember = azureLastWeek.groupby(level="assigned")
         os.makedirs("equipe", exist_ok=True)
+
         with yaspin(sp, side="left") as SP:
             for _name in team.values():
-                dms(_name, azure, azureGroupedbyTeamMember, lastDay, secondLastDay)
-                SP.write(f"> {_name}: graphs created.")
+                if _name in azureLastWeekIds:
+                    dms(_name, azure, azureGroupedbyTeamMember, lastDay, secondLastDay)
+                    SP.write(f"> {_name}\t: graphs created.")
         print("\nProcess completed.")
 
     except FileNotFoundError:

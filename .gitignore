@@ -9,6 +9,5 @@ spareparts.egg-info/
 build/
 dist/
 docs/build/
-venv/
 wheelhouse/
 samples/
