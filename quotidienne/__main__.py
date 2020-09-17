@@ -20,7 +20,7 @@ from quotidienne.spinner import sp
 mpl.rc("figure", max_open_warning=0)
 
 
-__VERSION__ = "0.0.2"
+__VERSION__ = "0.0.4"
 
 def display(team):
     print("\n")
@@ -60,12 +60,13 @@ def main():
         lastYear = azure.index.get_level_values(0).year.max()
         azureLastWeek = azure[(azure.week_azure == lastWeek) & (azure.year == lastYear)]
         azureLastWeekIds = azureLastWeek.index.get_level_values("assigned").unique().tolist() # list of ids in the last week
+        azureLastWeekIdsWithoutZero =  list(filter(lambda num: num != 0, azureLastWeekIds)) # same list but with the zero removed
         azureGroupedbyTeamMember = azureLastWeek.groupby(level="assigned")
         os.makedirs("equipe", exist_ok=True)
 
         with yaspin(sp, side="left") as SP:
             for _name in team.values():
-                if _name in azureLastWeekIds:
+                if _name in azureLastWeekIdsWithoutZero:
                     dms(_name, azure, azureGroupedbyTeamMember, lastDay, secondLastDay)
                     SP.write(f"> {_name}\t: graphs created.")
         print("\nProcess completed.")

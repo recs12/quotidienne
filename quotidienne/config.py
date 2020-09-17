@@ -26,7 +26,7 @@ def read_config(config):
     """read the csv file in the .quotidenne folder
     and return a list of teammembers.
     """
-    df = pd.read_csv(config, header=None)
+    df = pd.read_csv(config, header=None, encoding="utf-8")
     return df[0].tolist()
 
 

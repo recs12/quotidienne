@@ -5,7 +5,7 @@ from pandas.tseries.offsets import DateOffset
 
 
 def csv_parser(file_name, team, parse_dates=True):
-    df = pd.read_csv(file_name)
+    df = pd.read_csv(file_name, encoding="utf-8")
     df = df.rename(
         columns={
             "State": "state",
