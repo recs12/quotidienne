@@ -178,7 +178,6 @@ def dms(acronym, azure, azureGroupedbyTeamMember, lastDay, secondLastDay):
             "remaining": _remaining,
             "completed": _completed,
             "progress": _progress,
-            # "progress2" : _progress2,
         }
     )
     lastDayReport = lastDayReport.sort_values("task", ascending=True)
@@ -186,6 +185,7 @@ def dms(acronym, azure, azureGroupedbyTeamMember, lastDay, secondLastDay):
     lastDayReport = lastDayReport[
         ~(lastDayReport["remaining"] == 0) | ~(lastDayReport["progress"] == 0)
     ]
+
     if not lastDayReport.empty:
         graph_member_ids(lastDayReport, azure, acronym)
 

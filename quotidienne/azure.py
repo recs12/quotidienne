@@ -58,10 +58,7 @@ def get_azure_dataset(team):
     azure["week_azure"] = azure.date_azure.dt.week
     azure["task"] = (
         azure["tags"].astype(str) + "_" + azure["title"].astype(str)
-    )  # try with \n
-
-    # Impression des données avec une seule entrée dans le fichier
-    # azure_single_ids
+    )
 
     # Order the columns here.
     return azure[

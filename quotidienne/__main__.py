@@ -20,7 +20,7 @@ from quotidienne.spinner import sp
 mpl.rc("figure", max_open_warning=0)
 
 
-__VERSION__ = "0.0.4"
+__VERSION__ = "0.0.5"
 
 def display(team):
     print("\n")
@@ -56,8 +56,9 @@ def main():
         # Get the last week of the total dataset
         lastDay = azure.date_azure.max()
         secondLastDay = azure.date_azure.drop_duplicates().nlargest(2).iloc[-1]
-        lastWeek = azure.week_azure.max()
         lastYear = azure.index.get_level_values(0).year.max()
+        azure_last_year = azure[ azure.year == lastYear ]
+        lastWeek = azure_last_year.week.max()
         azureLastWeek = azure[(azure.week_azure == lastWeek) & (azure.year == lastYear)]
         azureLastWeekIds = azureLastWeek.index.get_level_values("assigned").unique().tolist() # list of ids in the last week
         azureLastWeekIdsWithoutZero =  list(filter(lambda num: num != 0, azureLastWeekIds)) # same list but with the zero removed
