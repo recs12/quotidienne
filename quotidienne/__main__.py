@@ -8,7 +8,6 @@ import warnings
 import matplotlib as mpl
 warnings.filterwarnings("ignore", category=mpl.cbook.MatplotlibDeprecationWarning)
 from logzero import logger
-# TODO: set a logging level
 from yaspin import yaspin
 
 from quotidienne.acronyms import mapping_with_acronyms
@@ -20,7 +19,7 @@ from quotidienne.spinner import sp
 mpl.rc("figure", max_open_warning=0)
 
 
-__VERSION__ = "0.0.5"
+__VERSION__ = "0.0.7"
 
 def display(team):
     print("\n")
@@ -53,13 +52,23 @@ def main():
         prompt_confirmation()
 
         azure = get_azure_dataset(team)
-        # Get the last week of the total dataset
-        lastDay = azure.date_azure.max()
-        secondLastDay = azure.date_azure.drop_duplicates().nlargest(2).iloc[-1]
+
         lastYear = azure.index.get_level_values(0).year.max()
+        print("lastYear : %s" %lastYear)
+
         azure_last_year = azure[ azure.year == lastYear ]
         lastWeek = azure_last_year.week.max()
-        azureLastWeek = azure[(azure.week_azure == lastWeek) & (azure.year == lastYear)]
+        print("lastWeek : %s" %lastWeek)
+
+        lastDay = azure_last_year.date_azure.max()
+        realLastDay = azure_last_year.real_date.max()
+        print("lastDay : %s" % realLastDay)
+
+        secondLastDay = azure_last_year.date_azure.drop_duplicates().nlargest(2).iloc[-1]
+        realSecondLastDay = azure_last_year.real_date.drop_duplicates().nlargest(2).iloc[-1]
+        print("secondLastDay : %s" %realSecondLastDay)
+
+        azureLastWeek = azure[(azure.week == lastWeek) & (azure.year == lastYear)]
         azureLastWeekIds = azureLastWeek.index.get_level_values("assigned").unique().tolist() # list of ids in the last week
         azureLastWeekIdsWithoutZero =  list(filter(lambda num: num != 0, azureLastWeekIds)) # same list but with the zero removed
         azureGroupedbyTeamMember = azureLastWeek.groupby(level="assigned")
@@ -87,4 +96,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("version: %s" %__VERSION__)
     main()

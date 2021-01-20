@@ -53,7 +53,8 @@ def get_azure_dataset(team):
         ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
     )
     azure["week"] = azure.index.get_level_values(0).week
-    azure["date_azure"] = azure.index.get_level_values(0) + DateOffset(days=-3)
+    azure["date_azure"] = azure.index.get_level_values(0) + DateOffset(days=-3) # azure week end in Thursday so 3 days offset.
+    azure["real_date"] = azure.index.get_level_values(0) + DateOffset(days=0)
     azure.date_azure = pd.to_datetime(azure.date_azure)
     azure["week_azure"] = azure.date_azure.dt.week
     azure["task"] = (
@@ -68,6 +69,7 @@ def get_azure_dataset(team):
             "week_azure",
             "Jour",
             "date_azure",
+            "real_date",
             "tags",
             "title",
             "state",
